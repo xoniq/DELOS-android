@@ -20,4 +20,5 @@
     <string name="conn_launch_failed">PC 无法启动该应用</string>
     <string name="conn_weak_mobile_banner">移动信号较弱 — 串流可能会卡顿</string>
     <string name="conn_weak_mobile_toast">移动信号较弱 — 可能会出现高延迟或卡顿</string>
+    <string name="conn_good_mobile_toast">移动信号已恢复良好</string>
 </resources>

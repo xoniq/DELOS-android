@@ -20,4 +20,5 @@
     <string name="conn_launch_failed">The PC could not start the app</string>
     <string name="conn_weak_mobile_banner">Weak mobile signal — streaming may stutter</string>
     <string name="conn_weak_mobile_toast">Weak mobile signal — expect high latency or stuttering</string>
+    <string name="conn_good_mobile_toast">Mobile signal is strong again</string>
 </resources>

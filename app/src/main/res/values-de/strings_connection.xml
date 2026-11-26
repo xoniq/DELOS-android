@@ -20,4 +20,5 @@
     <string name="conn_launch_failed">Der PC konnte die App nicht starten</string>
     <string name="conn_weak_mobile_banner">Schwaches Mobilfunksignal — Streaming kann ruckeln</string>
     <string name="conn_weak_mobile_toast">Schwaches Mobilfunksignal — hohe Latenz oder Ruckler möglich</string>
+    <string name="conn_good_mobile_toast">Mobilfunksignal ist wieder stark</string>
 </resources>

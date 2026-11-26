@@ -20,4 +20,5 @@
     <string name="conn_launch_failed">Le PC n’a pas pu lancer l’appli</string>
     <string name="conn_weak_mobile_banner">Signal mobile faible — le stream peut saccader</string>
     <string name="conn_weak_mobile_toast">Signal mobile faible — latence élevée ou saccades possibles</string>
+    <string name="conn_good_mobile_toast">Le signal mobile est de nouveau bon</string>
 </resources>

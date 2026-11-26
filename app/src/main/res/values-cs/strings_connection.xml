@@ -20,4 +20,5 @@
     <string name="conn_launch_failed">PC nedokázalo aplikaci spustit</string>
     <string name="conn_weak_mobile_banner">Slabý mobilní signál — streamování se může sekat</string>
     <string name="conn_weak_mobile_toast">Slabý mobilní signál — očekávejte vysokou latenci nebo záseky</string>
+    <string name="conn_good_mobile_toast">Mobilní signál je opět silný</string>
 </resources>

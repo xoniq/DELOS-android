@@ -20,4 +20,5 @@
     <string name="conn_launch_failed">ПК не зміг запустити застосунок</string>
     <string name="conn_weak_mobile_banner">Слабкий мобільний сигнал — стрім може гальмувати</string>
     <string name="conn_weak_mobile_toast">Слабкий мобільний сигнал — можливі висока затримка або ривки</string>
+    <string name="conn_good_mobile_toast">Мобільний сигнал знову сильний</string>
 </resources>

@@ -20,4 +20,5 @@
     <string name="conn_launch_failed">El PC no ha podido iniciar la app</string>
     <string name="conn_weak_mobile_banner">Señal móvil débil — la transmisión puede entrecortarse</string>
     <string name="conn_weak_mobile_toast">Señal móvil débil — es posible una latencia alta o tirones</string>
+    <string name="conn_good_mobile_toast">La señal móvil vuelve a ser buena</string>
 </resources>

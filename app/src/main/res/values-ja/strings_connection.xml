@@ -20,4 +20,5 @@
     <string name="conn_launch_failed">PCでアプリを開始できませんでした</string>
     <string name="conn_weak_mobile_banner">モバイル電波が弱いため、映像が乱れる場合があります</string>
     <string name="conn_weak_mobile_toast">モバイル電波が弱いため、遅延やカクつきが発生する可能性があります</string>
+    <string name="conn_good_mobile_toast">モバイル電波が再び良好になりました</string>
 </resources>

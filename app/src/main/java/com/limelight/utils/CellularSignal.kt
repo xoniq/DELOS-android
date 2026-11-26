@@ -15,11 +15,13 @@ import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.delay
 
 /**
  * Detects whether the device is actively streaming over a cellular connection and reads the
@@ -48,7 +50,8 @@ object CellularSignal {
         return isWeakLevel(bars)
     }
 
-    internal fun isWeakLevel(level: Int): Boolean = level <= CellSignalStrength.SIGNAL_STRENGTH_MODERATE
+    @JvmStatic
+    fun isWeakLevel(level: Int): Boolean = level <= CellSignalStrength.SIGNAL_STRENGTH_MODERATE
 
     internal fun effectiveLevel(signalStrength: SignalStrength): Int {
         val strengths = signalStrength.cellSignalStrengths
@@ -113,10 +116,16 @@ fun rememberCellularSignalLevel(): Int? {
         }
 
         onDispose {
-            if (netRegistered) runCatching { connMgr?.unregisterNetworkCallback(netCallback) }
+            if (netRegistered) runCatching { connMgr.unregisterNetworkCallback(netCallback) }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && telephony != null && telCallback != null) {
                 unregisterSignalListener(telephony, telCallback)
             }
+        }
+    }
+    LaunchedEffect(context) {
+        while (true) {
+            delay(3_000L)
+            level = CellularSignal.level(context)
         }
     }
     return level

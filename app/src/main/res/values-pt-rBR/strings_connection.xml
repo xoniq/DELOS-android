@@ -20,4 +20,5 @@
     <string name="conn_launch_failed">O PC não conseguiu iniciar o app</string>
     <string name="conn_weak_mobile_banner">Sinal móvel fraco — o stream pode engasgar</string>
     <string name="conn_weak_mobile_toast">Sinal móvel fraco — espere latência alta ou travamentos</string>
+    <string name="conn_good_mobile_toast">O sinal móvel está bom novamente</string>
 </resources>
