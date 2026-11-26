@@ -4,6 +4,7 @@
     <string name="shell_report_save_failed">Не вдалося зберегти журнал. Поділися ним у Налаштування → Про застосунок → Налагодження.</string>
     <string name="shell_report_no_browser">Немає доступного браузера</string>
     <string name="shell_retry_unreachable">%1$s недоступний</string>
+    <string name="shell_reconnecting_toast">Мережу змінено — перепідключення до %1$s…</string>
     <string name="shell_retry_game_missing">%1$s немає на %2$s</string>
     <string name="shell_retry_game_missing_unnamed">Застосунку немає на %1$s</string>
     <string name="shell_profile_updated">Профіль оновлено</string>

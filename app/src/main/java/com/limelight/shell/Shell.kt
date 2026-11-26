@@ -314,6 +314,23 @@ fun Shell(
 
     // A stream that ended on its own (it never started, the connection broke, the PC closed it): Home of
     // that PC first, then a toast or the result overlay. Shown once; the activity only held it until here.
+    suspend fun attemptReconnect(r: StreamResult, waitMs: Long, onUnreachable: () -> Unit, onAppMissing: (com.limelight.shell.data.Pc) -> Unit) {
+        val target = if (r.pcUuid.isEmpty()) null else repo.awaitPc(r.pcUuid, waitMs) { it.paired && it.online }
+        if (target == null) {
+            onUnreachable()
+            return
+        }
+        repo.selectPc(target.uuid)
+        val ready = withTimeoutOrNull(5_000) { repo.library.first { it is Library.Ready && it.pc.uuid == target.uuid } } as? Library.Ready
+        val app = ready?.apps?.let { apps -> apps.firstOrNull { it.id == r.appId } ?: apps.firstOrNull { it.name == r.appName } }
+        if (app == null) {
+            onAppMissing(target)
+            return
+        }
+        val cover = activity?.let { withContext(Dispatchers.IO) { StreamLoader.loadCover(it, target.uuid, app.id) } }
+        actions.start(target, app, cover)
+    }
+
     val streamResult by results.collectAsStateWithLifecycle()
     LaunchedEffect(streamResult) {
         val r = streamResult ?: return@LaunchedEffect
@@ -327,6 +344,23 @@ fun Shell(
         }
         // The launch scene that was waiting for the stream goes away when the shell resumes; the overlay follows it
         withTimeoutOrNull(3_000) { snapshotFlow { shell.launch == null }.first { it } }
+        if (r.kind == StreamResultKind.CONNECTION_LOST && r.autoReconnect) {
+            results.value = null
+            shell.showToast(res.getString(R.string.shell_reconnecting_toast, r.pcName), Symbols.REFRESH, kind = ToastKind.INFO, durationMs = 5_000)
+            attemptReconnect(
+                r,
+                waitMs = 10_000,
+                onUnreachable = {
+                    feedback.play(Cue.OPEN)
+                    shell.result = r.copy(autoReconnect = false)
+                },
+                onAppMissing = {
+                    feedback.play(Cue.OPEN)
+                    shell.result = r.copy(autoReconnect = false)
+                },
+            )
+            return@LaunchedEffect
+        }
         feedback.play(Cue.OPEN)
         results.value = null
         shell.result = r
@@ -406,25 +440,21 @@ fun Shell(
         val r = shell.result ?: return
         shell.result = null
         scope.launch {
-            val target = if (r.pcUuid.isEmpty()) null else repo.awaitPc(r.pcUuid, 4_000) { it.paired && it.online }
-            if (target == null) {
-                feedback.play(Cue.ERROR)
-                shell.showToast(res.getString(R.string.shell_retry_unreachable, r.pcName), Symbols.WIFI_OFF)
-                return@launch
-            }
-            repo.selectPc(target.uuid)
-            val ready = withTimeoutOrNull(5_000) { repo.library.first { it is Library.Ready && it.pc.uuid == target.uuid } } as? Library.Ready
-            val app = ready?.apps?.let { apps -> apps.firstOrNull { it.id == r.appId } ?: apps.firstOrNull { it.name == r.appName } }
-            if (app == null) {
-                feedback.play(Cue.ERROR)
-                shell.showToast(
-                    if (r.appName.isEmpty()) res.getString(R.string.shell_retry_game_missing_unnamed, target.name) else res.getString(R.string.shell_retry_game_missing, r.appName, target.name),
-                    Symbols.ERROR,
-                )
-                return@launch
-            }
-            val cover = activity?.let { withContext(Dispatchers.IO) { StreamLoader.loadCover(it, target.uuid, app.id) } }
-            actions.start(target, app, cover)
+            attemptReconnect(
+                r,
+                waitMs = 4_000,
+                onUnreachable = {
+                    feedback.play(Cue.ERROR)
+                    shell.showToast(res.getString(R.string.shell_retry_unreachable, r.pcName), Symbols.WIFI_OFF)
+                },
+                onAppMissing = { target ->
+                    feedback.play(Cue.ERROR)
+                    shell.showToast(
+                        if (r.appName.isEmpty()) res.getString(R.string.shell_retry_game_missing_unnamed, target.name) else res.getString(R.string.shell_retry_game_missing, r.appName, target.name),
+                        Symbols.ERROR,
+                    )
+                },
+            )
         }
     }
 

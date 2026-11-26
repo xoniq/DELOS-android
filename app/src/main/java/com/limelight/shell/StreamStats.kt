@@ -185,10 +185,10 @@ class StreamStatsPanel internal constructor(
         applyGravity()
     }
 
-    /** The overlay container sits at the top of the stream; at the bottom for the full panel's bottom corners. */
+    /** The overlay container sits at the top or bottom of the stream according to [position]. */
     private fun applyGravity() {
         (container.layoutParams as? android.widget.FrameLayout.LayoutParams)?.let {
-            it.gravity = if (position.top || compactState.value) android.view.Gravity.TOP else android.view.Gravity.BOTTOM
+            it.gravity = if (position.top) android.view.Gravity.TOP else android.view.Gravity.BOTTOM
             container.layoutParams = it
         }
     }
@@ -197,34 +197,69 @@ class StreamStatsPanel internal constructor(
     internal fun Content() {
         val s = stats.value ?: return
         val compact = compactState.value
+        val degradedColor = when {
+            compact && (s.lossPercent >= 5.0f || s.networkMs >= 100) -> HEALTH_CORAL.copy(alpha = .55f)
+            compact && (s.lossPercent >= 1.5f || s.networkMs >= 60) -> HEALTH_AMBER.copy(alpha = .55f)
+            else -> Color.White.copy(alpha = .10f)
+        }
         Box(
-            Modifier.fillMaxWidth().padding(horizontal = 40.px, vertical = if (compact) StreamMenuLayout.STATS_COMPACT_TOP.px else 32.px),
-            contentAlignment = when {
-                compact -> Alignment.TopCenter
-                position.start -> Alignment.TopStart
-                else -> Alignment.TopEnd
-            },
+            Modifier.fillMaxWidth().padding(horizontal = 40.px, vertical = if (compact) 24.px else 32.px),
+            contentAlignment = if (position.start) Alignment.TopStart else Alignment.TopEnd,
         ) {
             // Over the stream's video (a SurfaceView) nothing can blur it: the documented fallback is a darker tint (docs/GUI.md, "Glass")
-            val glass = Modifier.clip(RoundedCornerShape(if (compact) 999.px else 18.px))
+            val shape = RoundedCornerShape(if (compact) 999.px else 18.px)
+            val glass = Modifier.clip(shape)
                 .background(Color.Black.copy(alpha = .7f))
-                .border(1.px, Color.White.copy(alpha = .10f), RoundedCornerShape(if (compact) 999.px else 18.px))
+                .border(1.px, degradedColor, shape)
             if (compact) CompactLine(s, glass) else FullPanel(s, glass)
         }
     }
 
-    /** The classic Lite line: FPS, bandwidth, network and decoding delay, lost frames. */
+    /** The compact Mini-HUD line: FPS, 1% low, bandwidth, network/decode/total delay, and color-coded packet loss. */
     @Composable
     private fun CompactLine(s: StreamStats, modifier: Modifier) {
         // A compact stage narrower than the line breaks it in two: only after a separator, never inside a figure ("Network 11 ms" stays whole)
         val wraps = LocalStage.current.compact
         fun figures(text: String) = if (wraps) keepFigures(text) else text
+        val fpsColor = when {
+            s.incomingFps > 0f && s.fps < s.incomingFps * 0.6f -> HEALTH_CORAL
+            s.incomingFps > 0f && s.fps < s.incomingFps * 0.85f -> HEALTH_AMBER
+            else -> FPS_GREEN
+        }
+        val lowColor = if (s.onePercentLowFps >= 0f && s.onePercentLowFps < s.fps * 0.6f) HEALTH_AMBER else PANEL_TEXT
+        val netColor = when {
+            s.networkMs >= 100 -> HEALTH_CORAL
+            s.networkMs >= 60 -> HEALTH_AMBER
+            else -> PANEL_TEXT
+        }
+        val lossColor = when {
+            s.lossPercent >= 5.0f -> HEALTH_CORAL
+            s.lossPercent >= 1.5f -> HEALTH_AMBER
+            else -> PANEL_TEXT
+        }
+        val tail = figures("  ·  " + stringResource(R.string.stream_stats_compact_tail, s.networkMs, format(s.decodeMs), format(s.totalMs), format(s.lossPercent)))
+        val netToken = figures("${s.networkMs} ms")
+        val lossToken = figures("${format(s.lossPercent)} %")
         BasicText(
             buildAnnotatedString {
-                withStyle(SpanStyle(color = FPS_GREEN, fontWeight = FontWeight.SemiBold)) { append(figures("${s.fps.toInt()} FPS" + if (s.vrr) " VRR" else "")) } // l10n-ignore
-                if (s.onePercentLowFps >= 0f) append(figures("  ·  " + stringResource(R.string.stream_stats_compact_low, s.onePercentLowFps.toInt())))
+                withStyle(SpanStyle(color = fpsColor, fontWeight = FontWeight.SemiBold)) { append(figures("${s.fps.toInt()} FPS" + if (s.vrr) " VRR" else "")) } // l10n-ignore
+                if (s.onePercentLowFps >= 0f) {
+                    append(figures("  ·  "))
+                    withStyle(SpanStyle(color = lowColor, fontWeight = if (lowColor != PANEL_TEXT) FontWeight.SemiBold else FontWeight.Normal)) {
+                        append(figures(stringResource(R.string.stream_stats_compact_low, s.onePercentLowFps.toInt())))
+                    }
+                }
                 if (s.bandwidthKb >= 0f) append(figures("  ·  ${bandwidth(s.bandwidthKb)}"))
-                append(figures("  ·  " + stringResource(R.string.stream_stats_compact_tail, s.networkMs, format(s.decodeMs), format(s.totalMs), format(s.lossPercent))))
+                append(tail)
+                val netStart = length - tail.length + tail.indexOf(netToken).coerceAtLeast(0)
+                if (netColor != PANEL_TEXT && tail.contains(netToken)) {
+                    addStyle(SpanStyle(color = netColor, fontWeight = FontWeight.SemiBold), netStart, netStart + netToken.length)
+                }
+                val lossIdx = tail.lastIndexOf(lossToken)
+                if (lossColor != PANEL_TEXT && lossIdx >= 0) {
+                    val lossStart = length - tail.length + lossIdx
+                    addStyle(SpanStyle(color = lossColor, fontWeight = FontWeight.SemiBold), lossStart, lossStart + lossToken.length)
+                }
             },
             modifier.padding(horizontal = 24.px, vertical = StreamMenuLayout.STATS_COMPACT_PADDING_Y.px),
             // two balanced, centred lines there, not one figure alone on the second
@@ -327,6 +362,8 @@ class StreamStatsPanel internal constructor(
 
         private val PANEL_TEXT = Color(0xFFE8F0FF)
         private val FPS_GREEN = Color(0xFF7EE2A8)
+        private val HEALTH_AMBER = Color(0xFFF59E0B)
+        private val HEALTH_CORAL = Color(0xFFEF4444)
     }
 }
 

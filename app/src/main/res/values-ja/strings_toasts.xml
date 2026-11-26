@@ -4,6 +4,7 @@
     <string name="shell_report_save_failed">ログを保存できませんでした。設定 → バージョン情報 → デバッグ情報から共有してください。</string>
     <string name="shell_report_no_browser">利用できるブラウザがありません</string>
     <string name="shell_retry_unreachable">%1$sに接続できません</string>
+    <string name="shell_reconnecting_toast">ネットワークが切り替わりました — %1$sに再接続しています…</string>
     <string name="shell_retry_game_missing">%1$sは%2$sで利用できません</string>
     <string name="shell_retry_game_missing_unnamed">このアプリは%1$sで利用できません</string>
     <string name="shell_profile_updated">プロフィールを更新しました</string>

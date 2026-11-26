@@ -7,6 +7,7 @@
     <string name="shell_report_no_browser">Kein Browser verfügbar</string>
     <!-- %1$s: PC name -->
     <string name="shell_retry_unreachable">%1$s ist nicht erreichbar</string>
+    <string name="shell_reconnecting_toast">Netzwerk gewechselt — verbinde wieder mit %1$s…</string>
     <!-- %1$s: game name, %2$s: PC name -->
     <string name="shell_retry_game_missing">%1$s ist auf %2$s nicht verfügbar</string>
     <!-- %1$s: PC name; the game name is not known -->

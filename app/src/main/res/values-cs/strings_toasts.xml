@@ -5,6 +5,7 @@
     <string name="shell_report_save_failed">Záznam se nepodařilo uložit. Sdílej ho v Nastavení → O aplikaci → Informace pro ladění.</string>
     <string name="shell_report_no_browser">Není k dispozici žádný prohlížeč</string>
     <string name="shell_retry_unreachable">%1$s není dostupné</string>
+    <string name="shell_reconnecting_toast">Síť se změnila — připojuji znovu k %1$s…</string>
     <string name="shell_retry_game_missing">Hra %1$s není na %2$s k dispozici</string>
     <string name="shell_retry_game_missing_unnamed">Aplikace není na %1$s k dispozici</string>
     <string name="shell_profile_updated">Profil aktualizován</string>

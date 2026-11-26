@@ -4,6 +4,7 @@
     <string name="shell_report_save_failed">Impossible d’enregistrer le journal. Partage-le depuis Réglages → À propos → Infos de débogage.</string>
     <string name="shell_report_no_browser">Aucun navigateur disponible</string>
     <string name="shell_retry_unreachable">%1$s est injoignable</string>
+    <string name="shell_reconnecting_toast">Réseau modifié — reconnexion à %1$s…</string>
     <string name="shell_retry_game_missing">%1$s n’est pas disponible sur %2$s</string>
     <string name="shell_retry_game_missing_unnamed">L’appli n’est pas disponible sur %1$s</string>
     <string name="shell_profile_updated">Profil mis à jour</string>

@@ -81,6 +81,8 @@ import android.hardware.display.DisplayManager;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import com.limelight.utils.CellularSignal;
 import android.os.Build;
 import android.os.Bundle;
@@ -177,6 +179,10 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
     private boolean reportedCrash;
 
     private final WifiLockHolder wifiLocks = new WifiLockHolder();
+    private volatile boolean hasStreamStarted = false;
+    private volatile long lastNetworkSwitchMs = 0L;
+    private volatile String activeTransportSignature = "";
+    private ConnectivityManager.NetworkCallback streamNetworkCallback;
 
     private boolean connectedToUsbDriverService = false;
     private ServiceConnection usbDriverServiceConnection = new ServiceConnection() {
@@ -474,6 +480,33 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
 
         // Warn the user if they're on a weak mobile or metered connection
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connMgr != null) {
+            activeTransportSignature = transportSignature(connMgr);
+            streamNetworkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(Network network) {
+                    recordNetworkChange(connMgr);
+                }
+
+                @Override
+                public void onLost(Network network) {
+                    if (hasStreamStarted) {
+                        lastNetworkSwitchMs = android.os.SystemClock.elapsedRealtime();
+                    }
+                    activeTransportSignature = transportSignature(connMgr);
+                }
+
+                @Override
+                public void onCapabilitiesChanged(Network network, NetworkCapabilities caps) {
+                    recordNetworkChange(connMgr);
+                }
+            };
+            try {
+                connMgr.registerDefaultNetworkCallback(streamNetworkCallback);
+            } catch (Exception ignored) {
+                streamNetworkCallback = null;
+            }
+        }
         boolean isMetered = connMgr.isActiveNetworkMetered();
         if (CellularSignal.isWeak(this)) {
             displayTransientMessage(getResources().getString(R.string.conn_weak_mobile_toast));
@@ -1335,6 +1368,15 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
             streamMenu.closeForDisplayRemoval();
             streamMenu.flushAutoSave();
         }
+        if (streamNetworkCallback != null) {
+            ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (connMgr != null) {
+                try {
+                    connMgr.unregisterNetworkCallback(streamNetworkCallback);
+                } catch (Exception ignored) {}
+            }
+            streamNetworkCallback = null;
+        }
         super.onDestroy();
 
         // A stream started before this one was destroyed is the instance now: leave it alone
@@ -1722,8 +1764,14 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
                     if (errorCode != MoonBridge.ML_ERROR_GRACEFUL_TERMINATION) {
                         String ports = portFlags != 0 ? MoonBridge.stringifyPortFlags(portFlags, "\n") : null;
                         boolean portsBlocked = portTestResult != MoonBridge.ML_TEST_RESULT_INCONCLUSIVE && portTestResult != 0;
+                        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                        boolean networkMissing = cm != null && cm.getActiveNetwork() == null;
+                        boolean recentNetworkSwitch = lastNetworkSwitchMs > 0L
+                                && (android.os.SystemClock.elapsedRealtime() - lastNetworkSwitchMs) <= 20_000L;
+                        boolean autoReconnect = hasStreamStarted && (recentNetworkSwitch || networkMissing);
                         StreamOutcome.failed(DelosStreamActivity.this, StreamResultKind.CONNECTION_LOST,
-                                StreamResultKt.describeStreamFailure(getResources(), null, errorCode, ports, portsBlocked, false));
+                                StreamResultKt.describeStreamFailure(getResources(), null, errorCode, ports, portsBlocked, false),
+                                autoReconnect);
                     }
                     else {
                         StreamOutcome.hostClosed(DelosStreamActivity.this);
@@ -1770,6 +1818,11 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
             return;
         }
         DiagLog.i("Stream", "Stream started");
+        hasStreamStarted = true;
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            activeTransportSignature = transportSignature(cm);
+        }
         StreamEncryption encryption = StreamEncryption.read(conn.getServerAppVersion());
         DiagLog.i("Stream", encryption.logLine());
         playtime.setConnected(true);
@@ -2227,6 +2280,27 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
             commitTextSender.sendBackspaces(keyboardTranslator.translate(KeyEvent.KEYCODE_DEL, 0, -1), beforeLength);
         }
         return true;
+    }
+
+    private void recordNetworkChange(ConnectivityManager connMgr) {
+        String sig = transportSignature(connMgr);
+        if (!sig.equals(activeTransportSignature)) {
+            activeTransportSignature = sig;
+            if (hasStreamStarted) {
+                lastNetworkSwitchMs = android.os.SystemClock.elapsedRealtime();
+            }
+        }
+    }
+
+    private static String transportSignature(ConnectivityManager connMgr) {
+        Network active = connMgr.getActiveNetwork();
+        if (active == null) return "none";
+        NetworkCapabilities caps = connMgr.getNetworkCapabilities(active);
+        if (caps == null) return "none";
+        return (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ? "W" : "")
+                + (caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ? "C" : "")
+                + (caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ? "E" : "")
+                + (caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN) ? "V" : "");
     }
 
 }

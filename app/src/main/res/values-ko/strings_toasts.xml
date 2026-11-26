@@ -4,6 +4,7 @@
     <string name="shell_report_save_failed">로그를 저장하지 못했어요. 설정 → 정보 → 디버그 정보에서 공유해 주세요.</string>
     <string name="shell_report_no_browser">사용할 수 있는 브라우저가 없어요</string>
     <string name="shell_retry_unreachable">%1$s에 연결할 수 없어요</string>
+    <string name="shell_reconnecting_toast">네트워크가 변경되었습니다 — %1$s에 다시 연결 중…</string>
     <string name="shell_retry_game_missing">%2$s에서 %1$s을(를) 사용할 수 없어요</string>
     <string name="shell_retry_game_missing_unnamed">%1$s에서 이 앱을 사용할 수 없어요</string>
     <string name="shell_profile_updated">프로필을 업데이트했어요</string>
