@@ -18,4 +18,6 @@
     <!-- %1$d: the PC's error code -->
     <string name="conn_quit_foreign">Cette session a été lancée par un autre appareil et ne peut donc pas être quittée. Arrête le stream sur cet appareil ou sur le PC. (Erreur %1$d)</string>
     <string name="conn_launch_failed">Le PC n’a pas pu lancer l’appli</string>
+    <string name="conn_weak_mobile_banner">Signal mobile faible — le stream peut saccader</string>
+    <string name="conn_weak_mobile_toast">Signal mobile faible — latence élevée ou saccades possibles</string>
 </resources>

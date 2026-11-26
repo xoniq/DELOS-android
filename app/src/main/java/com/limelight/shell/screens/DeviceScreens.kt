@@ -75,6 +75,8 @@ import com.limelight.shell.ui.focusEffects
 import com.limelight.shell.ui.glass
 import com.limelight.shell.ui.px
 import com.limelight.shell.ui.tpx
+import com.limelight.utils.rememberWeakMobileSignal
+import androidx.compose.ui.graphics.Color
 
 /**
  * The start screen on every launch (GUI.md): the paired PCs in circles, the default one marked, and
@@ -106,6 +108,7 @@ fun StartScreen(profiles: Profiles, store: ProfileStore, pcs: List<Pc>, startup:
                 if (name != null) stringResource(R.string.devices_start_greeting, name) else stringResource(R.string.devices_start_welcome),
                 stringResource(if (paired.isEmpty()) R.string.devices_start_pair_note else R.string.devices_start_choose_note),
             )
+            if (rememberWeakMobileSignal()) WeakMobileSignalBanner()
             Circles {
                 // Every paired PC: the row scrolls when they do not fit (it used to stop at five)
                 paired.forEach { pc ->
@@ -234,6 +237,7 @@ fun DevicesScreen(pcs: List<Pc>, activeUuid: String?, defaultPc: String?) {
     PublishCompanionPc(paired.firstOrNull { it.uuid == focusedUuid }, PcContext.DEVICES, defaultPc)
     CenterColumn(gap = 48f) {
         Heading(stringResource(R.string.devices_title), stringResource(R.string.devices_note))
+        if (rememberWeakMobileSignal()) WeakMobileSignalBanner()
         Circles {
             paired.forEachIndexed { i, pc ->
                 val active = pc.uuid == activeUuid
@@ -327,3 +331,24 @@ private fun deviceMenu(res: Resources, pc: Pc, active: Boolean, actions: DeviceA
         MenuItem(Symbols.DELETE, res.getString(R.string.devices_menu_remove), danger = true) { actions.remove(pc) },
     ),
 )
+
+@Composable
+private fun WeakMobileSignalBanner() {
+    val colors = LocalDelosColors.current
+    val warningColor = Color(0xFFF59E0B)
+    Row(
+        Modifier
+            .clip(CircleShape)
+            .glass(colors.surface)
+            .border(1.px, warningColor.copy(alpha = 0.55f), CircleShape)
+            .padding(horizontal = 24.px, vertical = 12.px),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.px),
+    ) {
+        Symbol(Symbols.WARNING, 24.tpx, warningColor, filled = true)
+        BasicText(
+            stringResource(R.string.conn_weak_mobile_banner),
+            style = TextStyle(color = colors.text, fontFamily = Figtree, fontWeight = FontWeight.Medium, fontSize = 20.tpx),
+        )
+    }
+}

@@ -18,4 +18,6 @@
     <!-- %1$d: the PC's error code -->
     <string name="conn_quit_foreign">This session was started by another device, so it cannot be quit. End the stream on that device or on the PC. (Error %1$d)</string>
     <string name="conn_launch_failed">The PC could not start the app</string>
+    <string name="conn_weak_mobile_banner">Weak mobile signal — streaming may stutter</string>
+    <string name="conn_weak_mobile_toast">Weak mobile signal — expect high latency or stuttering</string>
 </resources>

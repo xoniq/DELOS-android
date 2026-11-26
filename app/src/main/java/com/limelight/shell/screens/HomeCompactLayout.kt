@@ -3,6 +3,9 @@ package com.limelight.shell.screens
 import com.limelight.shell.ui.Compact
 import com.limelight.shell.ui.FocusGap
 import com.limelight.shell.ui.FocusSpacing
+import com.limelight.shell.ui.StageMetrics
+import com.limelight.shell.ui.StagePlanner
+import com.limelight.shell.ui.compact
 
 /**
  * Home on a compact stage, laid out top-down (issue #9), stage pixels from the stage's top: the status bar, the title (or logo) box,
@@ -154,6 +157,10 @@ internal object HomeCompact {
      * so the next cover reaches up to about 26 px nearer the edge, still about a third of it in sight.
      */
     fun widthScale(stageWidth: Float): Float = (stageWidth - Compact.SIDE - PEEK_EDGE) / (WIDE * FOCUS_SCALE + 2f * PEEK_GAP + TILE * 4f / 3f)
+
+    /** Whether the home screen needs the top-down responsive layout (compact stages and short wide phone stages under 1080 px). */
+    fun usesCompactLayout(stage: StageMetrics): Boolean =
+        stage.compact || stage.stageHeight < StagePlanner.STAGE_HEIGHT - 1f
 
     /** The gap [widthScale] counts with: the prototype's, scaled with the covers. */
     private const val PEEK_GAP = 44f

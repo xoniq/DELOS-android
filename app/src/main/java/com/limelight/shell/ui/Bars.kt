@@ -109,10 +109,11 @@ fun StatusBar(
     /** False where the screen shows something else in the corner (the start screen's profile). */
     brand: Boolean = true,
     onBack: (() -> Unit)? = null,
+    cellularLevel: Int? = null,
 ) {
     val stage = LocalStage.current
     if (stage.compact) {
-        CompactStatusBar(nav, pcName, pcOnline, wifi, battery, clock, modifier, brand, onBack)
+        CompactStatusBar(nav, pcName, pcOnline, wifi, battery, clock, modifier, brand, onBack, cellularLevel)
         return
     }
     val colors = LocalDelosColors.current
@@ -130,7 +131,7 @@ fun StatusBar(
             }
         }
         if (nav != null) TopNav(nav, Modifier.align(Alignment.Center))
-        StatusCluster(wifi, battery, clock, Modifier.align(Alignment.CenterEnd))
+        StatusCluster(wifi, battery, clock, Modifier.align(Alignment.CenterEnd), cellularLevel = cellularLevel)
     }
 }
 
@@ -163,11 +164,15 @@ private fun StatusBarBack(onBack: (() -> Unit)?) {
 private fun StatusCluster(
     wifi: WifiStatus, battery: BatteryStatus?, clock: String, modifier: Modifier = Modifier,
     gap: Float = StatusBarLayout.STATUS_GAP, batteryGap: Float = StatusBarLayout.BATTERY_GAP, percent: Boolean = true,
+    cellularLevel: Int? = null,
 ) {
     val colors = LocalDelosColors.current
     Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(gap.px)) {
-        // Wi-Fi, battery and clock in the same color
+        // Wi-Fi (plus cellular signal bars when on cellular), battery and clock in the same color
         Symbol(wifiIcon(wifi), 30.tpx, colors.text)
+        if (cellularLevel != null) {
+            CellularSignalBars(cellularLevel)
+        }
         if (battery != null) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(batteryGap.px)) {
                 BatteryIndicator(battery)
@@ -192,7 +197,7 @@ private fun StatusCluster(
 @Composable
 private fun CompactStatusBar(
     nav: List<NavButton>?, pcName: String?, pcOnline: Boolean, wifi: WifiStatus, battery: BatteryStatus?, clock: String, modifier: Modifier, brand: Boolean,
-    onBack: (() -> Unit)?,
+    onBack: (() -> Unit)?, cellularLevel: Int? = null,
 ) {
     val colors = LocalDelosColors.current
     val stage = LocalStage.current
@@ -225,6 +230,7 @@ private fun CompactStatusBar(
             StatusCluster(
                 wifi, battery, clock, gap = if (step.tight) c.STATUS_GAP_TIGHT else c.STATUS_GAP,
                 batteryGap = if (step.tight) c.BATTERY_GAP_TIGHT else c.BATTERY_GAP, percent = step.percent,
+                cellularLevel = cellularLevel,
             )
         }.first().measure(open).also { rights[step.ordinal] = it }
         val fit = fitStatusBar(width.toFloat(), sideLeft.toPx(), sideRight.toPx(), minGap.toPx()) { step ->
@@ -272,6 +278,30 @@ private fun wifiIcon(wifi: WifiStatus) = when (wifi.level) {
     2 -> Symbols.NETWORK_WIFI_2_BAR
     3 -> Symbols.NETWORK_WIFI_3_BAR
     else -> Symbols.WIFI
+}
+
+@Composable
+private fun CellularSignalBars(level: Int) {
+    val colors = LocalDelosColors.current
+    val activeColor = if (level <= 2) Color(0xFFF59E0B) else colors.text
+    val inactiveColor = colors.text.copy(alpha = 0.25f)
+    Canvas(Modifier.size(28.px, 24.px)) {
+        val bars = 4
+        val gap = size.width * 0.12f
+        val barWidth = (size.width - gap * (bars - 1)) / bars
+        val corner = CornerRadius(barWidth / 2f, barWidth / 2f)
+        for (i in 0 until bars) {
+            val h = size.height * (0.30f + 0.70f * ((i + 1) / bars.toFloat()))
+            val x = i * (barWidth + gap)
+            val y = size.height - h
+            drawRoundRect(
+                color = if (i < level) activeColor else inactiveColor,
+                topLeft = Offset(x, y),
+                size = Size(barWidth, h),
+                cornerRadius = corner,
+            )
+        }
+    }
 }
 
 /** Battery at or below this level shows red while not charging (like iOS). */

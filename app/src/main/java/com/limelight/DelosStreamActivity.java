@@ -81,6 +81,7 @@ import android.hardware.display.DisplayManager;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
+import com.limelight.utils.CellularSignal;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -471,10 +472,12 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
             });
         }
 
-        // Warn the user if they're on a metered connection
+        // Warn the user if they're on a weak mobile or metered connection
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         boolean isMetered = connMgr.isActiveNetworkMetered();
-        if (isMetered) {
+        if (CellularSignal.isWeak(this)) {
+            displayTransientMessage(getResources().getString(R.string.conn_weak_mobile_toast));
+        } else if (isMetered) {
             displayTransientMessage(getResources().getString(R.string.conn_metered));
         }
 

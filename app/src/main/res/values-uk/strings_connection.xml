@@ -18,4 +18,6 @@
     <!-- %1$d: the PC's error code -->
     <string name="conn_quit_foreign">Цей сеанс запустив інший пристрій, тому його не можна завершити. Заверши стрім на тому пристрої або на ПК. (Помилка %1$d)</string>
     <string name="conn_launch_failed">ПК не зміг запустити застосунок</string>
+    <string name="conn_weak_mobile_banner">Слабкий мобільний сигнал — стрім може гальмувати</string>
+    <string name="conn_weak_mobile_toast">Слабкий мобільний сигнал — можливі висока затримка або ривки</string>
 </resources>

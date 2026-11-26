@@ -179,4 +179,22 @@ class HomeCompactLayoutTest {
         assertEquals(957f - 20f - 92f, l.hintTop, 0f)
         assertTrue(l.statusGap >= 16f && l.hintGap >= 28f)
     }
+
+    @Test
+    fun shortWidePhoneStagesUseCompactLayoutAndKeepTwoToThreeCoverRatio() {
+        val widePlan = com.limelight.shell.ui.StagePlanner.plan(900f, 405f)
+        val wideStage = com.limelight.shell.ui.StageMetrics(
+            widePlan.dpPerPx, 1f, widePlan.stageWidth, widePlan.stageHeight, widePlan.shape,
+        )
+        assertEquals(com.limelight.shell.ui.StageShape.WIDE, widePlan.shape)
+        assertTrue(c.usesCompactLayout(wideStage))
+
+        val layout = c.layout(wideStage.stageWidth, wideStage.stageHeight)
+        val tileWidth = c.TILE * layout.coverScale
+        assertEquals(2f / 3f, tileWidth / layout.coverHeight, 0.001f)
+        assertTrue(layout.coverBottom + layout.ringReach <= layout.hintTop - c.GAP_HINT + 0.01f)
+
+        val standardStage = com.limelight.shell.ui.StageMetrics(0.43f, 1f, 1920f, 1080f, com.limelight.shell.ui.StageShape.STANDARD)
+        assertTrue(!c.usesCompactLayout(standardStage))
+    }
 }

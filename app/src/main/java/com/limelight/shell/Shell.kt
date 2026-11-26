@@ -957,6 +957,7 @@ fun Shell(
                             wifi = wifi, battery = battery, clock = clock, brand = shell.screen != Screen.Start,
                             // The game overview goes back with the same button (its own back handler closes it), the dashboard has none
                             onBack = goBack.takeIf { shell.screen.back != null || shell.overviewGame != null },
+                            cellularLevel = com.limelight.utils.rememberCellularSignalLevel(),
                         )
                     }
                 }

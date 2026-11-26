@@ -18,4 +18,6 @@
     <!-- %1$d: the PC's error code -->
     <string name="conn_quit_foreign">Esta sessão foi iniciada por outro dispositivo e, por isso, não pode ser encerrada. Encerre o stream naquele dispositivo ou no PC. (Erro %1$d)</string>
     <string name="conn_launch_failed">O PC não conseguiu iniciar o app</string>
+    <string name="conn_weak_mobile_banner">Sinal móvel fraco — o stream pode engasgar</string>
+    <string name="conn_weak_mobile_toast">Sinal móvel fraco — espere latência alta ou travamentos</string>
 </resources>

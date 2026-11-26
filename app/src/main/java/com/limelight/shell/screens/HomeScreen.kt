@@ -341,10 +341,10 @@ private fun GameLibrary(library: Library.Ready, apps: List<App>, appearance: App
     // The games with their own settings (docs/GUI.md): read once per change of the library, profile or stored settings, not per tile
     val customGames = rememberCustomGames(profileStore, pc, library.apps)
 
-    // The covers' sizes: the prototype's, or the compact stage's, which lays the whole screen out top-down (HomeCompact)
-    val compact = stage.compact
-    val home = remember(stage.stageWidth, stage.stageHeight, stage.shape, stage.safe, uiScale) {
-        if (stage.compact) HomeCompact.layout(stage.stageWidth, stage.stageHeight, uiScale, stage.safe.top, stage.safe.bottom) else null
+    // The covers' sizes: the prototype's, or the responsive top-down layout on compact and short wide stages (HomeCompact)
+    val compact = HomeCompact.usesCompactLayout(stage)
+    val home = remember(stage.stageWidth, stage.stageHeight, stage.shape, stage.safe, uiScale, compact) {
+        if (compact) HomeCompact.layout(stage.stageWidth, stage.stageHeight, uiScale, stage.safe.top, stage.safe.bottom) else null
     }
     val covers = remember(home) { if (home != null) CoverGeometry(home.coverScale, HomeCompact.rowStart(home.coverScale)) else StandardCovers }
     // The focused game's streaming time (docs/GUI.md): the stat block is always there, an app never streamed shows 0 hours and Never

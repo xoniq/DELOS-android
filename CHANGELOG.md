@@ -16,6 +16,10 @@ Not verified on real hardware yet: variable refresh rate (no VRR display was ava
 - **Stream presets**: switch between built-in stream presets (*Home 1440p 120*, *Balanced 1080p 60*, *TV / Low Power 1080p 60*, *Travel 720p 60*) or save and delete your own custom presets at the top of Settings → Stream (`StreamPresetStore`).
 - **Backup export and import**: export profiles, settings, paired PCs, and pairing identity to a `.delos.json` file (e.g., to transfer via LocalSend) and import it from Settings → About or directly on the first-run welcome screen (`BootScreen`) to skip onboarding (`BackupManager`).
 - **Pre-flight network ping**: online PCs on the start screen show live TCP round-trip latency (`HostPing`) and offer a *Test network* action in their context menu to measure average latency and jitter before starting a stream.
+- **Weak mobile signal warning**: when actively using cellular data with poor signal strength (`<= 2` of 4 bars, `CellularSignal`), DELOS displays a warning banner on the Start and Devices screens, a warning toast upon connecting to a PC, a transient message when launching a stream, and a live 4-bar cellular indicator in the header.
+
+### Fixed
+- **Library covers on wide (20:9) phones**: on wide landscape phone screens whose stage height is below 1080 px (`StageShape.WIDE`), the home screen now uses the responsive top-down layout (`HomeCompact`) so 2:3 portrait covers scale proportionally instead of being cropped to nearly square tiles. (Fixes [#131](https://github.com/DELOS-STREAM/DELOS-android/issues/131))
 
 ## [1.3.3] - 2026-11-24
 _Virtual displays set up on the host work again with Vibepollo and Vibeshine._
