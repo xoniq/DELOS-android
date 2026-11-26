@@ -405,6 +405,7 @@ class StreamMenu(private val game: DelosStreamActivity) {
         override val overlayCompact get() = prefs.enablePerfOverlayLite
         override fun toggleOverlay() { game.toggleHUD() }
         override fun toggleSystemKeyboard() { game.toggleKeyboard() }
+        override fun takeScreenshot() { game.captureScreenshot() }
 
         override val brightnessPercent get() = this@StreamMenu.brightnessPercent()
         override fun setBrightness(percent: Int) { applyBrightness(percent, menu) }

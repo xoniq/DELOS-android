@@ -174,6 +174,8 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
     private TextView performanceOverlayBig;
     // Delos: the statistics panel of streams started from the new UI (replaces the two texts above)
     private com.limelight.shell.StreamStatsPanel statsPanel;
+    private com.limelight.utils.ScreenshotGestureDetector screenshotGestureDetector;
+    private boolean screenshotIncludeOverlays = false;
 
     private MediaCodecDecoderRenderer decoderRenderer;
     private boolean reportedCrash;
@@ -463,6 +465,16 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
 
         performanceOverlayBig = findViewById(R.id.performanceOverlayBig);
         statsPanel = com.limelight.shell.StreamStatsPanel.attach(this, (android.view.ViewGroup) performanceOverlayView, prefConfig.enablePerfOverlayLite);
+        android.content.SharedPreferences profilePrefs = ProfileStore.Companion.currentSettings(this);
+        screenshotIncludeOverlays = com.limelight.utils.ScreenshotGesture.readIncludeOverlays(profilePrefs);
+        com.limelight.utils.ScreenshotGesture screenshotGesture = com.limelight.utils.ScreenshotGesture.readGesture(profilePrefs);
+        screenshotGestureDetector = new com.limelight.utils.ScreenshotGestureDetector(
+                screenshotGesture,
+                getResources().getDisplayMetrics().density,
+                () -> {
+                    captureScreenshot();
+                    return kotlin.Unit.INSTANCE;
+                });
 
         inputCaptureProvider = InputCaptureManager.getInputCaptureProvider(this);
 
@@ -2179,6 +2191,15 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
         return key != LoaderKey.NONE;
     }
 
+    public void captureScreenshot() {
+        String appName = getIntent().getStringExtra(EXTRA_APP_NAME);
+        com.limelight.utils.StreamScreenshot.capture(
+                this,
+                streamContainer != null ? streamContainer.getSurfaceView() : null,
+                screenshotIncludeOverlays,
+                appName);
+    }
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         ControllerGlyphs.INSTANCE.touch(event);
@@ -2188,6 +2209,13 @@ public class DelosStreamActivity extends AppCompatActivity implements SurfaceHol
         // No swipe-up menu gesture while the loader shows: its view consumes the touches
         boolean loaderShowing = loader != null && loader.getShowing();
         if (!loaderShowing && streamMenu != null && !isOnExternalDisplay() && streamMenu.onTouch(event)) {
+            return true;
+        }
+        if (!loaderShowing && screenshotGestureDetector != null && screenshotGestureDetector.onTouchEvent(event)) {
+            MotionEvent cancel = MotionEvent.obtain(event);
+            cancel.setAction(MotionEvent.ACTION_CANCEL);
+            super.dispatchTouchEvent(cancel);
+            cancel.recycle();
             return true;
         }
         return super.dispatchTouchEvent(event);

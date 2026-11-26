@@ -52,6 +52,9 @@ internal object MoreRow {
     /** The More row that opens Android's system keyboard (the Keyboard tile is the Delos keyboard). */
     const val ANDROID_KEYBOARD = "Open Android keyboard"
 
+    /** The More row that captures a screenshot of the running stream. */
+    const val SCREENSHOT = "Take screenshot"
+
     /** The More row that opens the live rumble feel page. */
     const val RUMBLE = "Rumble feel"
 

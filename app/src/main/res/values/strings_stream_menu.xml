@@ -101,6 +101,7 @@
 
     <!-- The compact one-line panel. %1$d: the frame rate of the slowest 1% of frames -->
     <string name="stream_stats_compact_low">1%% low %1$d</string>
+    <string name="stream_menu_row_screenshot">Take screenshot</string>
     <!-- %1$d: network delay in ms, %2$s: decode time in ms, %3$s: total latency in ms, %4$s: lost frames in percent (numbers formatted in code) -->
     <string name="stream_stats_compact_tail">Network %1$d ms  ·  Decode %2$s ms  ·  Total %3$s ms  ·  Lost %4$s %%</string>
     <!-- Row labels of the full panel -->

@@ -43,6 +43,7 @@ internal interface StreamMenuHost {
     val overlayCompact: Boolean
     fun toggleOverlay()
     fun toggleSystemKeyboard()
+    fun takeScreenshot() = Unit
 
     // Brightness
     val brightnessPercent: Int

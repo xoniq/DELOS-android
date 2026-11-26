@@ -175,7 +175,21 @@ internal fun nativeSettings(
         row(OscOpacity.KEY, Symbols.OPACITY, res.getString(R.string.settings_native_osc_opacity_title),
             RowValue.Slider(OscOpacity.read(settings), OscOpacity.MIN, OscOpacity.MAX, OscOpacity.STEP, " %") { v -> OscOpacity.write(settings, v) },
             res.getString(R.string.summary_osc_opacity), tab = SettingsTab.CONTROLS, section = res.getString(R.string.category_on_screen_controls_settings))
+        val screenshotGesture = com.limelight.utils.ScreenshotGesture.readGesture(settings)
+        row(com.limelight.utils.ScreenshotGesture.KEY_GESTURE, Symbols.IMAGE, res.getString(R.string.settings_native_screenshot_gesture_title),
+            RowValue.Choice(res.getString(screenshotGesture.labelRes), { dir ->
+                com.limelight.utils.ScreenshotGesture.writeGesture(settings, screenshotGesture.step(dir))
+            }, options = com.limelight.utils.ScreenshotGesture.entries.map { res.getString(it.labelRes) },
+                selected = screenshotGesture.ordinal,
+                onPick = { i -> com.limelight.utils.ScreenshotGesture.writeGesture(settings, com.limelight.utils.ScreenshotGesture.entries[i]) }),
+            res.getString(R.string.settings_native_screenshot_gesture_description),
+            tab = SettingsTab.CONTROLS, section = streamMenuSection)
     }
+    row(com.limelight.utils.ScreenshotGesture.KEY_INCLUDE_OVERLAYS, Symbols.PHOTO_LIBRARY, res.getString(R.string.settings_native_screenshot_overlays_title),
+        RowValue.Toggle(com.limelight.utils.ScreenshotGesture.readIncludeOverlays(settings)) { on ->
+            com.limelight.utils.ScreenshotGesture.writeIncludeOverlays(settings, on)
+        }, res.getString(R.string.settings_native_screenshot_overlays_description),
+        tab = SettingsTab.CONTROLS, section = streamMenuSection)
     val statsPosition = StatsPosition.read(settings)
     row("ui_stats_position", Symbols.STATS_POSITION, res.getString(R.string.settings_native_stats_position_title),
         RowValue.Choice(res.getString(statsPosition.labelRes), { dir ->

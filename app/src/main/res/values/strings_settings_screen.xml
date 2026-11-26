@@ -120,6 +120,15 @@
     <string name="settings_native_menu_swipe_title">Swipe up to open the menu</string>
     <string name="settings_native_menu_swipe_description">A swipe up from the bottom edge also opens the stream menu. Touches starting there do not reach the app.</string>
     <string name="settings_native_osc_opacity_title">On-screen controls opacity</string>
+    <string name="settings_native_screenshot_gesture_title">Screenshot gesture</string>
+    <string name="settings_native_screenshot_gesture_description">Capture an in-stream screenshot with a touch gesture instead of triggering Android’s system bars.</string>
+    <string name="settings_native_screenshot_gesture_off">Off</string>
+    <string name="settings_native_screenshot_gesture_2tap">2-finger tap</string>
+    <string name="settings_native_screenshot_gesture_3tap">3-finger tap</string>
+    <string name="settings_native_screenshot_gesture_4tap">4-finger tap</string>
+    <string name="settings_native_screenshot_gesture_pinch">Pinch in</string>
+    <string name="settings_native_screenshot_overlays_title">Include overlays in screenshots</string>
+    <string name="settings_native_screenshot_overlays_description">Capture the stats HUD, on-screen controls, and toasts along with the game video.</string>
     <string name="settings_native_stats_position_title">Statistics position</string>
     <string name="settings_native_stats_position_description">Corner of the full statistics panel while streaming. Compact mode is always top center.</string>
     <string name="settings_native_stats_top_left">Top left</string>

@@ -495,6 +495,7 @@ private fun pageFocusKeys(host: StreamMenuHost, page: MenuPage, supersamplingMod
             add(MenuKey.ONSCREEN_CONTROLS)
             add(MoreRow.OSC_OPACITY)
             add(MoreRow.ANDROID_KEYBOARD)
+            add(MoreRow.SCREENSHOT)
             add(MenuKey.TOUCH_SENSITIVITY)
             add(MoreRow.RUMBLE)
             if (host.gyroSmoothingAvailable) add(MoreRow.GYRO)
@@ -562,6 +563,7 @@ private fun PageRows(
                     changesTick()
                 })
             KeyedRow(Symbols.ANDROID_KEYBOARD, R.string.stream_menu_row_android_keyboard, MoreRow.ANDROID_KEYBOARD, RowValue.Action { close { host.toggleSystemKeyboard() } })
+            KeyedRow(Symbols.IMAGE, R.string.stream_menu_row_screenshot, MoreRow.SCREENSHOT, RowValue.Action { close { host.takeScreenshot() } })
             KeyedRow(Symbols.TOUCH_SENSITIVITY, R.string.stream_menu_row_touch_sensitivity, MenuKey.TOUCH_SENSITIVITY, RowValue.Toggle(host.touchSensitivityOn) { toggle { host.toggleTouchSensitivity() } })
             KeyedRow(Symbols.VIBRATION, R.string.stream_menu_row_rumble_feel, MoreRow.RUMBLE, RowValue.Text(host.rumblePreset?.label(res) ?: stringResource(R.string.stream_menu_rumble_custom)) { openPage(MenuPage.RUMBLE) }, entry(MoreRow.RUMBLE))
             if (host.gyroSmoothingAvailable) {
